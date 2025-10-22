@@ -1,0 +1,27 @@
+name: Validate Resume JSON
+
+on:
+  push:
+    paths:
+      - cv.json
+      - resume.json
+  pull_request:
+    paths:
+      - cv.json
+      - resume.json
+
+env:
+  CV_FILE: cv.json
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate resume file
+        uses: txtcv/actions@main
+        with:
+          cv-path: ${{ env.CV_FILE }}
