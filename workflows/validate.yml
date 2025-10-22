@@ -1,39 +1,53 @@
-name: validate-json-resume-cv
-description: Validate a JSON resume CV file
+name: Validate JSON Resume CV
 
-inputs:
-  cv-path:
-    description: "Relative path to the CV JSON file to validate."
-    required: false
-    default: "cv.json"
+on:
+  workflow_call:
+    inputs:
+      cv-path:
+        description: "Relative path to the CV JSON file to validate."
+        required: false
+        type: string
+        default: cv.json
+  workflow_dispatch:
+    inputs:
+      cv-path:
+        description: "Relative path to the CV JSON file to validate."
+        required: false
+        default: cv.json
 
-runs:
-  using: "composite"
-  steps:
-    - id: install
-      name: Install
-      shell: bash
-      run: |
-        set -euo pipefail
+jobs:
+  validate:
+    name: Validate CV
+    runs-on: macos-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check source
+        uses: actions/checkout@v4
 
-        if ! command -v brew >/dev/null 2>&1; then
-          echo 'Homebrew (brew) must be available on the runner to install txtcv.' >&2
-          exit 1
-        fi
+      - name: Install txtcv
+        shell: bash
+        run: |
+          set -euo pipefail
 
-        brew tap txtcv/tap
-        brew install --quiet txtcv
+          if ! command -v brew >/dev/null 2>&1; then
+            echo 'Homebrew (brew) must be available on the runner to install txtcv.' >&2
+            exit 1
+          fi
 
-    - name: Validate
-      shell: bash
-      env:
-        CV_PATH: ${{ inputs['cv-path'] }}
-      run: |
-        set -euo pipefail
+          brew tap txtcv/tap
+          brew install --quiet txtcv
 
-        if [[ ! -f "$CV_PATH" ]]; then
-          echo "CV file '$CV_PATH' was not found." >&2
-          exit 1
-        fi
+      - name: Validate CV
+        shell: bash
+        env:
+          CV_PATH: ${{ inputs.cv-path }}
+        run: |
+          set -euo pipefail
 
-        txtcv validate "$CV_PATH"
+          if [[ ! -f "$CV_PATH" ]]; then
+            echo "CV file '$CV_PATH' was not found." >&2
+            exit 1
+          fi
+
+          txtcv validate "$CV_PATH"
