@@ -3,14 +3,14 @@ name: Validate JSON Resume CV
 on:
   workflow_call:
     inputs:
-      cv-path:
+      cv_path:
         description: "Relative path to the CV JSON file to validate."
         required: false
         type: string
         default: cv.json
   workflow_dispatch:
     inputs:
-      cv-path:
+      cv_path:
         description: "Relative path to the CV JSON file to validate."
         required: false
         default: cv.json
@@ -41,7 +41,7 @@ jobs:
       - name: Validate CV
         shell: bash
         env:
-          CV_PATH: ${{ inputs.cv-path }}
+          CV_PATH: ${{ inputs.cv_path }}
         run: |
           set -euo pipefail
 
@@ -50,4 +50,4 @@ jobs:
             exit 1
           fi
 
-          txtcv validate "$CV_PATH"
+          txtcv validate --filename "$CV_PATH"
