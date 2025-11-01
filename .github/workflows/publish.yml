@@ -1,0 +1,61 @@
+name: Publish JSON Resume CV
+
+on:
+  workflow_call:
+    inputs:
+      cv_id:
+        description: "ID of the CV on txtcv"
+        required: true
+        type: string
+      cv_path:
+        description: "Relative path to the CV JSON file to publish."
+        required: false
+        type: string
+        default: cv.json
+  workflow_dispatch:
+    inputs:
+      cv_id:
+        description: "ID of the CV on txtcv"
+        required: true
+        type: string
+      cv_path:
+        description: "Relative path to the CV JSON file to publish."
+        required: false
+        default: cv.json
+
+jobs:
+  validate:
+    name: Publish CV
+    runs-on: macos-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check source
+        uses: actions/checkout@v4
+
+      - name: Install txtcv
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if ! command -v brew >/dev/null 2>&1; then
+            echo 'Homebrew (brew) must be available on the runner to install txtcv.' >&2
+            exit 1
+          fi
+
+          brew tap txtcv/tap
+          brew install --quiet txtcv
+
+      - name: Publish CV
+        shell: bash
+        env:
+          CV_PATH: ${{ inputs.cv_path }}
+        run: |
+          set -euo pipefail
+
+          if [[ ! -f "$CV_PATH" ]]; then
+            echo "CV file '$CV_PATH' was not found." >&2
+            exit 1
+          fi
+
+          txtcv publish --cv-id ${{ inputs.cv_id }} --filename "$CV_PATH"
