@@ -12,6 +12,10 @@ on:
         required: false
         type: string
         default: cv.json
+      txtcv_auth_token:
+        description: "Authentication token from txtcv"
+        required: true
+        type: string
   workflow_dispatch:
     inputs:
       cv_id:
@@ -22,6 +26,10 @@ on:
         description: "Relative path to the CV JSON file to publish."
         required: false
         default: cv.json
+      txtcv_auth_token:
+        description: "Authentication token from txtcv"
+        required: true
+        type: string
 
 jobs:
   validate:
@@ -50,6 +58,7 @@ jobs:
         shell: bash
         env:
           CV_PATH: ${{ inputs.cv_path }}
+          TXTCV_AUTH_TOKEN: ${{ inputs.txtcv_auth_token }}
         run: |
           set -euo pipefail
 
